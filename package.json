@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "dist/cjs",
   "types": "dist/types",
+  "description": "The rc-echarts uses echarts@5.2 developed a react component.",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:clean": "rimraf dist && rimraf docs",
@@ -42,8 +43,5 @@
   },
   "engines": {
     "yarn": ">=1.4.0"
-  },
-  "dependencies": {
-    "path-to-regexp": "^6.2.0"
   }
 }
