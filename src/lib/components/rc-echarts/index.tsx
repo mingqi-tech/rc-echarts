@@ -23,39 +23,73 @@
  */
 
 import React, {
+  createRef,
   forwardRef,
   HTMLProps,
   useEffect,
   useImperativeHandle,
-  useState,
+  useRef,
 } from 'react';
 
 import { ECharts, EChartsCoreOption, init, use as _use } from 'echarts/core';
 import { EChartsInitOpts } from '../../types';
+import { addEvent } from '../../event';
 
 export const RCEcharts = forwardRef<ECharts | undefined, RCEchartsProps>(
   (props, ref) => {
-    const { option, theme, config, notMerge, lazyUpdate, ...restProps } = props;
-    const [instance, setInstance] = useState<ECharts>();
+    const {
+      option,
+      theme,
+      config,
+      notMerge,
+      autoResize = true,
+      lazyUpdate,
+      ...restProps
+    } = props;
+    const instance = useRef<ECharts>();
+    const element = createRef<HTMLDivElement>();
+    const rect = useRef<{ width: number; height: number }>();
 
-    useImperativeHandle(ref, () => instance);
+    // 创建ref
+    useImperativeHandle(ref, () => instance.current);
 
+    // 创建实例
     useEffect(() => {
-      if (instance && option) {
-        instance.setOption(option, notMerge, lazyUpdate);
+      if (!instance.current && element.current) {
+        rect.current = {
+          width: element.current.clientWidth,
+          height: element.current.clientHeight,
+        };
+        instance.current = init(element.current, theme, config);
+      }
+    }, [element, theme, config]);
+
+    // 监听option变化更新实例
+    useEffect(() => {
+      if (instance.current && option) {
+        instance.current.setOption(option, notMerge, lazyUpdate);
       }
     }, [instance, option, notMerge, lazyUpdate]);
 
-    return (
-      <div
-        {...restProps}
-        ref={(e): void => {
-          if (!instance && e) {
-            setInstance(init(e, theme, config));
+    // 监听dom变化
+    useEffect(() => {
+      if (autoResize) {
+        const subscription = addEvent('resize', () => {
+          if (
+            rect.current &&
+            element.current &&
+            instance.current &&
+            (rect.current.width !== element.current.clientWidth ||
+              rect.current.width !== element.current.clientWidth)
+          ) {
+            instance.current.resize();
           }
-        }}
-      />
-    );
+        });
+        return (): void => subscription.remove();
+      }
+    }, [element, rect, instance, autoResize]);
+
+    return <div {...restProps} ref={element} />;
   }
 );
 
@@ -69,4 +103,5 @@ export interface RCEchartsProps extends HTMLProps<HTMLDivElement> {
   config?: EChartsInitOpts;
   notMerge?: boolean;
   lazyUpdate?: boolean;
+  autoResize?: boolean;
 }
