@@ -81,8 +81,8 @@ export const Component = () => {
  ```
 
 ## Documentation
+- [echarts](https://echarts.apache.org/examples/zh/index.html)
 - [ApiDocs](https://mingqi-tech.github.io/rc-echarts/)
-- [Samples](https://github.com/mingqi-tech/rc-echarts/tree/master/sample)
 - [GitRepository](https://github.com/mingqi-tech/rc-echarts)
 
 

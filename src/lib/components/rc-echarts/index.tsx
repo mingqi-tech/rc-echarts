@@ -23,7 +23,6 @@
  */
 
 import React, {
-  createRef,
   forwardRef,
   HTMLProps,
   useEffect,
@@ -47,22 +46,11 @@ export const RCEcharts = forwardRef<ECharts | undefined, RCEchartsProps>(
       ...restProps
     } = props;
     const instance = useRef<ECharts>();
-    const element = createRef<HTMLDivElement>();
+    const element = useRef<HTMLDivElement>();
     const rect = useRef<{ width: number; height: number }>();
 
     // 创建ref
     useImperativeHandle(ref, () => instance.current);
-
-    // 创建实例
-    useEffect(() => {
-      if (!instance.current && element.current) {
-        rect.current = {
-          width: element.current.clientWidth,
-          height: element.current.clientHeight,
-        };
-        instance.current = init(element.current, theme, config);
-      }
-    }, [element, theme, config]);
 
     // 监听option变化更新实例
     useEffect(() => {
@@ -89,13 +77,25 @@ export const RCEcharts = forwardRef<ECharts | undefined, RCEchartsProps>(
       }
     }, [element, rect, instance, autoResize]);
 
-    return <div {...restProps} ref={element} />;
+    return (
+      <div
+        {...restProps}
+        ref={(e: HTMLDivElement): void => {
+          if (!instance.current && e) {
+            element.current = e;
+            rect.current = {
+              width: e.clientWidth,
+              height: e.clientHeight,
+            };
+            instance.current = init(e, theme, config);
+          }
+        }}
+      />
+    );
   }
 );
 
 export const use = _use;
-
-export { EChartsCoreOption, ECharts } from 'echarts/core';
 
 export interface RCEchartsProps extends HTMLProps<HTMLDivElement> {
   option?: EChartsCoreOption;
