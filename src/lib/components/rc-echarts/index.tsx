@@ -47,7 +47,6 @@ export const RCEcharts = forwardRef<ECharts | undefined, RCEchartsProps>(
     } = props;
     const instance = useRef<ECharts>();
     const element = useRef<HTMLDivElement>();
-    const rect = useRef<{ width: number; height: number }>();
 
     // 创建ref
     useImperativeHandle(ref, () => instance.current);
@@ -63,19 +62,13 @@ export const RCEcharts = forwardRef<ECharts | undefined, RCEchartsProps>(
     useEffect(() => {
       if (autoResize) {
         const subscription = addEvent('resize', () => {
-          if (
-            rect.current &&
-            element.current &&
-            instance.current &&
-            (rect.current.width !== element.current.clientWidth ||
-              rect.current.width !== element.current.clientWidth)
-          ) {
+          if (element.current && instance.current) {
             instance.current.resize();
           }
         });
         return (): void => subscription.remove();
       }
-    }, [element, rect, instance, autoResize]);
+    }, [element, instance, autoResize]);
 
     return (
       <div
@@ -83,10 +76,6 @@ export const RCEcharts = forwardRef<ECharts | undefined, RCEchartsProps>(
         ref={(e: HTMLDivElement): void => {
           if (!instance.current && e) {
             element.current = e;
-            rect.current = {
-              width: e.clientWidth,
-              height: e.clientHeight,
-            };
             instance.current = init(e, theme, config);
           }
         }}
