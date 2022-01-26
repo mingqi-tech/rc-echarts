@@ -27,6 +27,7 @@ import React, {
   HTMLProps,
   useEffect,
   useImperativeHandle,
+  useLayoutEffect,
   useRef,
 } from 'react';
 
@@ -59,7 +60,7 @@ export const RCEcharts = forwardRef<ECharts | undefined, RCEchartsProps>(
     }, [instance, option, notMerge, lazyUpdate]);
 
     // 监听dom变化
-    useEffect(() => {
+    useLayoutEffect(() => {
       if (autoResize) {
         const subscription = addEvent('resize', () => {
           if (element.current && instance.current) {
@@ -77,6 +78,9 @@ export const RCEcharts = forwardRef<ECharts | undefined, RCEchartsProps>(
           if (!instance.current && e) {
             element.current = e;
             instance.current = init(e, theme, config);
+            setTimeout(() => {
+              instance.current?.resize();
+            }, 200);
           }
         }}
       />
