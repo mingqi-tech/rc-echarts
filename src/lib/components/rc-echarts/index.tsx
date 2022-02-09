@@ -67,8 +67,12 @@ export const RCEcharts = forwardRef<ECharts | undefined, RCEchartsProps>(
         {...restProps}
         ref={(e: HTMLDivElement): void => {
           if (e && option) {
+            if (instance.current) {
+              instance.current.dispose();
+            }
             instance.current = init(e, theme, config);
             instance.current.setOption(option, notMerge, lazyUpdate);
+            instance.current.resize();
           }
         }}
       />
