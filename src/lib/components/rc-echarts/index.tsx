@@ -25,7 +25,6 @@
 import React, {
   forwardRef,
   HTMLProps,
-  useEffect,
   useImperativeHandle,
   useLayoutEffect,
   useRef,
@@ -47,40 +46,29 @@ export const RCEcharts = forwardRef<ECharts | undefined, RCEchartsProps>(
       ...restProps
     } = props;
     const instance = useRef<ECharts>();
-    const element = useRef<HTMLDivElement>();
 
     // 创建ref
     useImperativeHandle(ref, () => instance.current);
-
-    // 监听option变化更新实例
-    useEffect(() => {
-      if (instance.current && option) {
-        instance.current.setOption(option, notMerge, lazyUpdate);
-      }
-    }, [instance, option, notMerge, lazyUpdate]);
 
     // 监听dom变化
     useLayoutEffect(() => {
       if (autoResize) {
         const subscription = addEvent('resize', () => {
-          if (element.current && instance.current) {
+          if (instance.current) {
             instance.current.resize();
           }
         });
         return (): void => subscription.remove();
       }
-    }, [element, instance, autoResize]);
+    }, [instance, autoResize]);
 
     return (
       <div
         {...restProps}
         ref={(e: HTMLDivElement): void => {
-          if (!instance.current && e) {
-            element.current = e;
+          if (e && option) {
             instance.current = init(e, theme, config);
-            setTimeout(() => {
-              instance.current?.resize();
-            }, 200);
+            instance.current.setOption(option, notMerge, lazyUpdate);
           }
         }}
       />
